@@ -32,7 +32,7 @@ public class Carimbo : MonoBehaviour
     {
         segurandoCarimbo = true;
         carimboFlutuante.gameObject.SetActive(true);
-       
+        carimboFlutuante.SetAsLastSibling();
 
         if (Mouse.current != null)
         {
