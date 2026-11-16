@@ -1,0 +1,4 @@
+{
+    "name": "Protocolo404.Runtime",
+    "references": ["Unity.TextMeshPro", "Unity.ugui"]
+}
