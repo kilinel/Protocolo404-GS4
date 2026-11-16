@@ -1,9 +1,13 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class DocumentoArrastavel : MonoBehaviour,
+public class DocumentoArrastavel : MonoBehaviour, IPointerClickHandler,
     IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+
+    private Carimbo sistemaCarimbo;
+    private RectTransform meuRectTransform;
+
     [Header("Visuais deste documento")]
     public GameObject visualBalcao;
     public GameObject visualInspecao;
@@ -31,6 +35,11 @@ public class DocumentoArrastavel : MonoBehaviour,
         pai = transform.parent as RectTransform;
     }
 
+    void Start()
+    {
+        sistemaCarimbo = FindAnyObjectByType<Carimbo>();
+        meuRectTransform = GetComponent<RectTransform>();
+    }
     public void OnBeginDrag(PointerEventData evento)
     {
         if (documento == null || pai == null ||
@@ -132,5 +141,25 @@ public class DocumentoArrastavel : MonoBehaviour,
         arrastando = false;
         documento.position = posicaoAnterior;
         TrocarVisual(estavaNaInspecao);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!naInspecao || eventData.button != PointerEventData.InputButton.Left || eventData.dragging)
+            return;
+
+        RectTransform rectInspecao = visualInspecao.GetComponent<RectTransform>();
+
+        bool clicouNoVisualInspecao = RectTransformUtility.RectangleContainsScreenPoint(
+               rectInspecao,
+               eventData.position,
+               eventData.pressEventCamera
+        );
+
+        if (clicouNoVisualInspecao && sistemaCarimbo != null)
+        {
+            sistemaCarimbo.AplicarCarimboNaFolha(rectInspecao);
+        }
+
     }
 }
