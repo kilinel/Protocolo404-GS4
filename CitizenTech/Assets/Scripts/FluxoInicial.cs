@@ -3,7 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 public class FluxoInicial : MonoBehaviour
 {
     public const string ChaveIntroducao = "Protocolo404.IntroducaoVista.v1";
@@ -20,6 +20,7 @@ public class FluxoInicial : MonoBehaviour
     public GameObject painelMenu;
     public GameObject painelCircular;
     public GameObject painelGameplay;
+    public GameObject painelFimPrototipo;
     public Image imagemIntroducao;
     public TMP_Text textoIntroducao;
     public Button botaoContinuar;
@@ -28,6 +29,8 @@ public class FluxoInicial : MonoBehaviour
     public AudioSource audioDigitando;
     public AudioSource audioClique;
     public AudioClip somClique;
+
+
 
 
     [Header("Uma imagem e um texto por trecho")]
@@ -45,6 +48,7 @@ public class FluxoInicial : MonoBehaviour
     private int trechoAtual;
     private bool digitando;
     private Coroutine animacao;
+    private bool partidaIniciada;
 
     private void Start()
     {
@@ -138,11 +142,17 @@ public class FluxoInicial : MonoBehaviour
 
     public void MostrarMenu()
     {
+        if (partidaIniciada)
+        {
+            ReiniciarPrototipo();
+            return;
+        }
         PararAnimacao();
         painelGameplay.SetActive(false);
         painelIntroducao.SetActive(false);
         painelCircular.SetActive(false);
         painelMenu.SetActive(true);
+        painelFimPrototipo.SetActive(false);
     }
 
     public void Jogar()
@@ -193,10 +203,28 @@ public class FluxoInicial : MonoBehaviour
 
     public void IniciarExpediente()
     {
+        partidaIniciada = true;
         PararAnimacao();
         painelIntroducao.SetActive(false);
         painelMenu.SetActive(false);
         painelCircular.SetActive(false);
         painelGameplay.SetActive(true);
+    }
+
+    public void MostrarFimPrototipo()
+    {
+        PararAnimacao();
+
+        painelIntroducao.SetActive(false);
+        painelMenu.SetActive(false);
+        painelCircular.SetActive(false);
+        painelGameplay.SetActive(false);
+
+        painelFimPrototipo.SetActive(true);
+    }
+
+    public void ReiniciarPrototipo()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

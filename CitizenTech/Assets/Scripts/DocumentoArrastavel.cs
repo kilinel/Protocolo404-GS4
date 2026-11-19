@@ -12,6 +12,15 @@ public class DocumentoArrastavel : MonoBehaviour, IPointerClickHandler,
     public GameObject visualBalcao;
     public GameObject visualInspecao;
 
+    [Header("Permissões")]
+    public bool podeEntregar = true;
+    public bool podeCarimbar = true;
+
+    [Header("Sons do documento")]
+    public AudioSource audioSFX;
+    public AudioClip somGrab;
+    public AudioClip somEndGrab;
+
     [Header("Áreas da cena")]
     public RectTransform areaBalcao;
     public RectTransform areaInspecao;
@@ -29,10 +38,14 @@ public class DocumentoArrastavel : MonoBehaviour, IPointerClickHandler,
     [Header("Feedback visual")]
     public GameObject destaqueInspecao;
 
+    public AtendimentoController atendimento;
+
     private void Awake()
     {
         documento = GetComponent<RectTransform>();
         pai = transform.parent as RectTransform;
+        naInspecao = visualInspecao != null
+    && visualInspecao.activeSelf;
     }
 
     void Start()
@@ -60,6 +73,9 @@ public class DocumentoArrastavel : MonoBehaviour, IPointerClickHandler,
         estavaNaInspecao = naInspecao;
         distanciaDoMouse = documento.position - mouse;
         arrastando = true;
+
+        if (audioSFX != null && somGrab != null)
+            audioSFX.PlayOneShot(somGrab);
 
         if (destaqueInspecao != null)
             destaqueInspecao.SetActive(true);
@@ -92,6 +108,9 @@ public class DocumentoArrastavel : MonoBehaviour, IPointerClickHandler,
         OnDrag(evento);
         arrastando = false;
 
+        if (audioSFX != null && somEndGrab != null)
+            audioSFX.PlayOneShot(somEndGrab);
+
         if (destaqueInspecao != null)
             destaqueInspecao.SetActive(false);
 
@@ -101,8 +120,18 @@ public class DocumentoArrastavel : MonoBehaviour, IPointerClickHandler,
         }
         else if (EstaDentro(areaGuiche, evento))
         {
-            // Devolvido ao cidadão.
-            gameObject.SetActive(false);
+            if (podeEntregar)
+            {
+                gameObject.SetActive(false);
+
+                if (atendimento != null)
+                    atendimento.DocumentoEntregue(this);
+            }
+            else
+            {
+                documento.position = posicaoAnterior;
+                TrocarVisual(estavaNaInspecao);
+            }
         }
         else if (EstaDentro(areaBalcao, evento))
         {
@@ -145,6 +174,9 @@ public class DocumentoArrastavel : MonoBehaviour, IPointerClickHandler,
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!podeCarimbar)
+            return;
+
         if (!naInspecao || eventData.button != PointerEventData.InputButton.Left || eventData.dragging)
             return;
 

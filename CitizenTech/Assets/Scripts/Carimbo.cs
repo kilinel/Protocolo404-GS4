@@ -14,6 +14,11 @@ public class Carimbo : MonoBehaviour
 
     private bool segurandoCarimbo = false;
     private bool animando = false;
+
+    [Header("Sons")]
+    public AudioSource audioSFX;
+    public AudioClip somPegar;
+    public AudioClip somCarimbar;
     void Update()
     {
         if (segurandoCarimbo && !animando && Mouse.current != null)
@@ -30,6 +35,11 @@ public class Carimbo : MonoBehaviour
 
     public void PegarCarimbo()
     {
+        if (segurandoCarimbo || animando)
+            return;
+
+        if (audioSFX != null && somPegar != null)
+            audioSFX.PlayOneShot(somPegar);
         segurandoCarimbo = true;
         carimboFlutuante.gameObject.SetActive(true);
         carimboFlutuante.SetAsLastSibling();
@@ -60,12 +70,21 @@ public class Carimbo : MonoBehaviour
         {
             animadorCarimbo.SetTrigger("Carimbar");
         }
+       
 
         yield return new WaitForSeconds(tempoAteEncostar);
 
         GameObject novaMarca = Instantiate(marcaCarimboPrefab, folhaAlvo, false);
 
         novaMarca.transform.position = posicaoClique + new Vector3(0f,30f,0f);
+
+        var ficha = folhaAlvo.GetComponentInParent<FichaSolicitacao>();
+
+        if (ficha != null)
+            ficha.RegistrarCarimbo();
+
+        if (audioSFX != null && somCarimbar != null)
+            audioSFX.PlayOneShot(somCarimbar);
 
         float tempoRestante = Mathf.Max(0, tempoTotalAnimacao - tempoAteEncostar);
         yield return new WaitForSeconds(tempoRestante);
